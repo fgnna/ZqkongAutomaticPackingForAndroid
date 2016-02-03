@@ -32,6 +32,7 @@ public class QueryLog extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		// TODO Auto-generated method stub
+		/*
 		 String[] cmds = {"/bin/sh","-c","ps -ef|grep java"};  
 	        Process pro = Runtime.getRuntime().exec(cmds);  
 	        try {
@@ -46,6 +47,9 @@ public class QueryLog extends HttpServlet {
 	        while((line = read.readLine())!=null){  
 	            System.out.println(line);  
 	        }  
+	        */
+		
+		Model.getInstance().queryAll();
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 

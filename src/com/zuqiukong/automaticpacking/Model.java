@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 /**
@@ -165,17 +166,29 @@ public class Model
 		ResultSet resultSet = null;
 		try 
 		{
+			List<ChannelPojo> channelList = new LinkedList<>();
+			
 			Statement statement = conn.createStatement();
 			resultSet  = statement .executeQuery("select * from zqk_channel order by update_date ;"); //查询数据 
-			if(resultSet.next())
+			while(resultSet.next())
 			{
-				return null;
+				ChannelPojo channelt = new ChannelPojo();
+				channelt.id = resultSet.getString(1);
+				channelt.channel_name = resultSet.getString(2);
+				channelt.version = resultSet.getString(3);
+				channelt.create_date =  resultSet.getTimestamp(4);
+				channelt.update_date = resultSet.getTimestamp(5);
+				channelt.status = resultSet.getInt(6);
+				channelList.add(channelt);
+			}
+			if(0 != channelList.size())
+			{
+				return channelList;
 			}
 			else
 			{
 				return null;
 			}
-			
 		}
 		catch (SQLException e) 
 		{
