@@ -99,11 +99,12 @@ public class Model
 			{
 				Statement statement = conn.createStatement();
 				//statement.executeUpdate("     drop table zqk_channel    ");
-				statement.executeUpdate(" insert into zqk_channel values("+getStringValue(channel.id)+","+getStringValue(channel.channel_name)+","+time+","+time+","+channel.status+");      ");
+				statement.executeUpdate(" insert into zqk_channel values("+getStringValue(channel.id)+","+getStringValue(channel.channel_name)+","+getStringValue(channel.version)+","+time+","+time+","+channel.status+");      ");
 				return true;
 			}
 			else
 			{
+				System.out.println("数据已经存在:"+channel_name);
 				return false;
 			}
 			
