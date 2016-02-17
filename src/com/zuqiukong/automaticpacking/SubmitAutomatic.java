@@ -1,6 +1,11 @@
 package com.zuqiukong.automaticpacking;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringBufferInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -44,7 +49,17 @@ public class SubmitAutomatic extends HttpServlet {
 		else
 		{
 			
-			if(Model.getInstance().insert(channel_name, "1.0.0"))
+			String versionName = getVersionName();
+			
+			if(null == versionName)
+			{
+				responsePojo.ret_code = 0;
+				responsePojo.ret_msg = "提交失败，无法查询到版本号";
+				response.getWriter().append(gson.toJson(responsePojo));
+				return ;
+			}
+			
+			if(Model.getInstance().insert(channel_name, versionName))
 			{
 				responsePojo.ret_code = 1;
 				responsePojo.ret_msg = "";
@@ -67,5 +82,47 @@ public class SubmitAutomatic extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
+	
+	
+	static final synchronized String getVersionName()
+	{
+		 String[] cmds = {"git","-C",Constants.PROJECT_CHECK_VERSION_PATH,"pull","origin","master"};  
+	        try {
+	        	Process pro = Runtime.getRuntime().exec(cmds);  
+				pro.waitFor();
+				InputStream in = pro.getInputStream();  
+				BufferedReader read = new BufferedReader(new InputStreamReader(in));  
+				String line = null;  
+				while((line = read.readLine())!=null){  
+					System.out.println(line);  
+				}  
+				read.close();
+				in.close();
+				
+				in = new FileInputStream(Constants.PROJECT_CHECK_VERSION_BUILD_GRADLE_PATH);
+				read = new BufferedReader(new InputStreamReader(in));
+				while((line = read.readLine())!=null){  
+					if(null != line && !"".equals(line) && line.indexOf("versionName") != -1)
+					{
+						System.out.println(line.trim().replace("versionName ","").replaceAll("\"", ""));
+						break;
+					}
+				}
+				read.close();
+				in.close();
+				return line;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
+	        
+		
+		return null;
+	}
+	
+	
 
 }

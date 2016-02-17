@@ -5,7 +5,14 @@ package com.zuqiukong.automaticpacking.taskheadler;
  *
  */
 public class ChannelTask 
-{
+{	
+	
+	private String channelId;
+	
+	public ChannelTask(String channelId)
+	{
+		this.channelId = channelId;
+	}
 	public void doWrok()
 	{
 		

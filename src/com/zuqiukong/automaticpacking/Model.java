@@ -211,8 +211,18 @@ public class Model
 		}
 	}
 	
+	/**
+	 * 根据id获取
+	 * @param channelId
+	 */
+	public void getChannelById(String channelId) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	private String getStringValue(String value)
 	{
 		return "'"+value+"'";
 	}
+	
 }

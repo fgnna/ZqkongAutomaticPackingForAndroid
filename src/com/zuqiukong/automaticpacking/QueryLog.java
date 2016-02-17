@@ -34,23 +34,6 @@ public class QueryLog extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		// TODO Auto-generated method stub
-		/*
-		 String[] cmds = {"/bin/sh","-c","ps -ef|grep java"};  
-	        Process pro = Runtime.getRuntime().exec(cmds);  
-	        try {
-				pro.waitFor();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}  
-	        InputStream in = pro.getInputStream();  
-	        BufferedReader read = new BufferedReader(new InputStreamReader(in));  
-	        String line = null;  
-	        while((line = read.readLine())!=null){  
-	            System.out.println(line);  
-	        }  
-	        */
 		
 		List<ChannelPojo>  list = Model.getInstance().queryAll();
 		response.setHeader("content-type","text/html;charset=UTF-8");
