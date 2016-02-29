@@ -1,4 +1,4 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
+import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 /**
  * 处理数据库操作
  * @author jie
@@ -84,7 +86,7 @@ public class Model
 	 * @param version
 	 * @return
 	 */
-	public boolean insert(String channel_name,String version)
+	public ChannelPojo  insert(String channel_name,String version)
 	{
 		try 
 		{
@@ -100,12 +102,12 @@ public class Model
 				Statement statement = conn.createStatement();
 				//statement.executeUpdate("     drop table zqk_channel    ");
 				statement.executeUpdate(" insert into zqk_channel values("+getStringValue(channel.id)+","+getStringValue(channel.channel_name)+","+getStringValue(channel.version)+","+time+","+time+","+channel.status+");      ");
-				return true;
+				return channel;
 			}
 			else
 			{
 				System.out.println("数据已经存在:"+channel_name);
-				return false;
+				return null;
 			}
 			
 		}
@@ -116,7 +118,7 @@ public class Model
 		}
 		
 		
-		return false;
+		return null;
 	}
 
 	/**
@@ -215,8 +217,8 @@ public class Model
 	 * 根据id获取
 	 * @param channelId
 	 */
-	public void getChannelById(String channelId) {
-		// TODO Auto-generated method stub
+	public void getChannelById(String channelId) 
+	{
 		
 	}
 	

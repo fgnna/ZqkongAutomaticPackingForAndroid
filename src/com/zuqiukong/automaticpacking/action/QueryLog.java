@@ -1,4 +1,4 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.action;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.zuqiukong.automaticpacking.model.Model;
+import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
+import com.zuqiukong.automaticpacking.pojo.ResponseBasePojo;
 
 /**
  * Servlet implementation class QueryLog

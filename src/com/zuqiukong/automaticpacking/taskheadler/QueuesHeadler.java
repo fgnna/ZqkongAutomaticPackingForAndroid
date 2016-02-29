@@ -15,7 +15,7 @@ public class QueuesHeadler  implements Runnable
      * 假如 参数o 为任务
      * @param o
      */
-    public static void add (ChannelTask t){
+    public static void addTask (ChannelTask t){
         synchronized (queue) {
         	queue.add(t); //添加任务
         	queue.notifyAll();//激活该队列对应的执行线程，全部Run起来

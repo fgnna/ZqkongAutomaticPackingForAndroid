@@ -1,4 +1,4 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.pojo;
 /**
  * 统一的数据返回格式
  * @author jie

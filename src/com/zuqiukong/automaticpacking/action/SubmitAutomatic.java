@@ -1,11 +1,10 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.action;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringBufferInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.zuqiukong.automaticpacking.Constants;
+import com.zuqiukong.automaticpacking.model.Model;
+import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
+import com.zuqiukong.automaticpacking.pojo.ResponseBasePojo;
+import com.zuqiukong.automaticpacking.taskheadler.ChannelTask;
+import com.zuqiukong.automaticpacking.taskheadler.QueuesHeadler;
 
 /**
  * Servlet implementation class SubimtAutomatic
@@ -59,10 +64,12 @@ public class SubmitAutomatic extends HttpServlet {
 				return ;
 			}
 			
-			if(Model.getInstance().insert(channel_name, versionName))
+			ChannelPojo channelPojo = Model.getInstance().insert(channel_name, versionName); 
+			if(null != channelPojo)
 			{
 				responsePojo.ret_code = 1;
 				responsePojo.ret_msg = "";
+				QueuesHeadler.addTask(new ChannelTask(channelPojo.id , channelPojo.channel_name,channelPojo.version));
 				response.getWriter().append(gson.toJson(responsePojo));
 			}
 			else
@@ -86,7 +93,7 @@ public class SubmitAutomatic extends HttpServlet {
 	
 	static final synchronized String getVersionName()
 	{
-		 String[] cmds = {"git","-C",Constants.PROJECT_CHECK_VERSION_PATH,"pull","origin","master"};  
+		 String[] cmds = {"git","-C",Constants.PROJECT_CHECK_VERSION_PATH,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH};  
 	        try {
 	        	Process pro = Runtime.getRuntime().exec(cmds);  
 				pro.waitFor();
