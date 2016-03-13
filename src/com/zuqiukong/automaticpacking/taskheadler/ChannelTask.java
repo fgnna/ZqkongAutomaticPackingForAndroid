@@ -1,7 +1,10 @@
 package com.zuqiukong.automaticpacking.taskheadler;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,9 +51,7 @@ public class ChannelTask
         {
         	Process pro = Runtime.getRuntime().exec(cmdCheckoutSource);  
 			pro.waitFor();
-			pro.destroy();
-			pro = Runtime.getRuntime().exec(cmdUpdateSource);
-			pro.waitFor();
+			
 			InputStream in = pro.getInputStream();  
 			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
 			String line = null;  
@@ -58,9 +59,20 @@ public class ChannelTask
 			{  
 				System.out.println(line);  
 			}  
-			//Fast-forward
-			//
+			read.close();
+			in.close();
+			pro.destroy();
 			
+			pro = Runtime.getRuntime().exec(cmdUpdateSource);
+			pro.waitFor();
+			in = pro.getInputStream();  
+			read = new BufferedReader(new InputStreamReader(in));  
+			line = null;  
+			while((line = read.readLine())!=null)
+			{  
+				System.out.println(line);  
+			}  
+			//Fast-forward
 			read.close();
 			in.close();
 		} catch (InterruptedException e) {
@@ -91,14 +103,14 @@ public class ChannelTask
 			int lineCount = 0;
 			while(( line = read.readLine() ) != null )
 			{  
-				contentString.append(line);
+				contentString.append(line).append("\n");
 			}
-			System.out.println(contentString.toString());
-			
-			
 			read.close();
 			in.close();
-			
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_PATH))) ;
+			bufferedWriter.write(contentString.toString().replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replaceAll("<channelName>", channelName)));
+			bufferedWriter.flush();
+			bufferedWriter.close();
 		}catch (Exception e)
 		{
 			e.printStackTrace();
@@ -111,6 +123,58 @@ public class ChannelTask
 	private void assembleRelease()
 	{
 		
+		//./gradlew clean
+		// ./gradlew assemble<channelName>Release
+		//打包前清除
+		String[] cmdClean = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"clean"};
+		//打包
+		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+channelName+"Release"};
+        try 
+        {
+        	Process pro = Runtime.getRuntime().exec(cmdClean);  
+			pro.waitFor();
+			
+			InputStream in = pro.getInputStream();  
+			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
+			read.close();
+			in.close();
+			pro.destroy();
+			
+			String line = null;  
+			pro = Runtime.getRuntime().exec(cmdPacking );
+			pro.waitFor();
+			in = pro.getInputStream();  
+			read = new BufferedReader(new InputStreamReader(in));  
+			line = null;  
+			boolean buildSuccessful = false;
+			while((line = read.readLine())!=null)
+			{  
+				System.out.println(line);
+				if(line.indexOf("BUILD SUCCESSFUL")!= -1)
+				{
+					buildSuccessful = true;
+				}
+			}  
+			//Fast-forward
+			read.close();
+			in.close();
+			
+			if(buildSuccessful)
+			{
+				System.out.println("打包完成");
+			}
+			else
+			{
+				System.out.println("打包失败");
+			}
+			
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
 	}
 	
 	/**

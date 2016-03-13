@@ -1,9 +1,13 @@
 package com.zuqiukong.automaticpacking;
-
+/**
+ * 项目常量配置
+ * @author jie
+ *
+ */
 public interface Constants 
 {
 	//项目打包的远程仓库名
-		final String PROJECT_GIT_REMOTE= "origin";
+	final String PROJECT_GIT_REMOTE= "origin";
 	//项目打包的分支
 	final String PROJECT_GIT_BRANCH = "master";
 	
@@ -20,5 +24,9 @@ public interface Constants
 	//用于编辑打包配置文件
 	final String PROJECT_GRADLE_PATH = PROJECT_PATH + "/app/build.gradle";
 
-	
+	//匹配打包时所需替换的包名字符的正则表达式：productFlavors {......}
+	//final String Gradle_Profiles_Regex =  "productFlavors\\s*\\{{1}([\\w\\s/\\\\*]*\\{{1}[\\w\\s=\\[\\]\\\":]*\\}{1})*[\\s\\*/]*\\}{1}";
+	final String Gradle_Profiles_Regex =  "productFlavors\\s*\\{{1}([\\w\\s/\\\\\\*]*\\{{1}[\\w\\s=\\[\\]\\\":]*\\}{1})*[\\s\\*/]*\\}{1}";
+	//打包配置的替换文本格式 : 请替换 <channelName>为正确的渠道标识
+	final String Gradle_Profiles_Text =  "productFlavors{ \n <channelName> { \n manifestPlaceholders = [ CHANNEL_NAME:\"<channelName>\" ] \n } \n }";
 }
