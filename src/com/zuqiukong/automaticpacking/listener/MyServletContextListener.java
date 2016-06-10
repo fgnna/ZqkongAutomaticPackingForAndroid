@@ -3,6 +3,7 @@ package com.zuqiukong.automaticpacking.listener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.zuqiukong.automaticpacking.Constants;
 import com.zuqiukong.automaticpacking.taskheadler.QueuesHeadler;
 
 /**
@@ -23,7 +24,10 @@ public class MyServletContextListener  implements ServletContextListener
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) 
 	{
+		Constants.WebPath = arg0.getServletContext().getRealPath("/")+"apk";
 		new Thread(new QueuesHeadler()).start();
+		
+		
 	}
 
 }

@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import com.zuqiukong.automaticpacking.Constants;
+import com.zuqiukong.automaticpacking.model.Model;
+import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 
 /**
  * 任务逻辑处理器
@@ -36,7 +38,6 @@ public class ChannelTask
 		checkoutAndUpdate();
 		setChannelName();
 		assembleRelease();
-		putFile();
 		updateModel();
 	}
 	
@@ -108,7 +109,8 @@ public class ChannelTask
 			read.close();
 			in.close();
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_PATH))) ;
-			bufferedWriter.write(contentString.toString().replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replaceAll("<channelName>", channelName)));
+			String newBuild = contentString.toString().replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replaceAll("<channelName>", channelName));
+			bufferedWriter.write(newBuild);
 			bufferedWriter.flush();
 			bufferedWriter.close();
 		}catch (Exception e)
@@ -126,6 +128,8 @@ public class ChannelTask
 		//./gradlew clean
 		// ./gradlew assemble<channelName>Release
 		//打包前清除
+		Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_PROCESSING);
+		
 		String[] cmdClean = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"clean"};
 		//打包
 		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+channelName+"Release"};
@@ -149,7 +153,6 @@ public class ChannelTask
 			boolean buildSuccessful = false;
 			while((line = read.readLine())!=null)
 			{  
-				System.out.println(line);
 				if(line.indexOf("BUILD SUCCESSFUL")!= -1)
 				{
 					buildSuccessful = true;
@@ -161,10 +164,13 @@ public class ChannelTask
 			
 			if(buildSuccessful)
 			{
+				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_SUCCESS);
+				putFile();
 				System.out.println("打包完成");
 			}
 			else
 			{
+				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_FAILED);
 				System.out.println("打包失败");
 			}
 			
@@ -182,7 +188,24 @@ public class ChannelTask
 	 */
 	private void putFile()
 	{
+		String apkName = "/zuqiukong_"+channelName+"_release_"+version+".apk";
+		String apkPackgaPath = Constants.PROJECT_PATH + Constants.APK_PATH + apkName;
+
 		
+		String[] cmdCopyApk = {"cp",apkPackgaPath,Constants.WebPath};
+
+        try 
+        {
+        	Process pro = Runtime.getRuntime().exec(cmdCopyApk);  
+			pro.waitFor();
+			pro.destroy();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
 	}
 	
 	/**

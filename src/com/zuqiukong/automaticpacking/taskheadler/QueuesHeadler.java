@@ -25,6 +25,7 @@ public class QueuesHeadler  implements Runnable
     @Override
     public void run() {
         while(true){
+        	ChannelTask t= null;
             synchronized (queue) {
                 while(queue.isEmpty()){ //
                     try {
@@ -34,10 +35,11 @@ public class QueuesHeadler  implements Runnable
                     }
                     System.out.println("wait...");
                 }
-                ChannelTask t= queue.remove(0); //得到第一个
-                t.doWrok(); //执行该任务
-                System.out.println("end");
+                t= queue.remove(0); //得到第一个
+                
             }
+        	t.doWrok(); //执行该任务
+            System.out.println("end");
         }
     }
 

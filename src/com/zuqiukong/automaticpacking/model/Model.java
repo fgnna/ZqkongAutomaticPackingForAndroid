@@ -214,6 +214,27 @@ public class Model
 	}
 	
 	/**
+	 * 新增一个任务
+	 * @param channel_name
+	 * @param version
+	 * @return
+	 */
+	public void updateStatus(String channel_id,int status)
+	{
+		try 
+		{
+				Statement statement = conn.createStatement();
+				statement.executeUpdate(" update zqk_channel set status="+status +" where id='"+channel_id+"'");
+		}
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			System.out.println("error:"+e.getMessage());
+		}
+	}
+	
+	
+	/**
 	 * 根据id获取
 	 * @param channelId
 	 */

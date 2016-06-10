@@ -111,8 +111,8 @@ public class SubmitAutomatic extends HttpServlet {
 				while((line = read.readLine())!=null){  
 					if(null != line && !"".equals(line) && line.indexOf("versionName") != -1)
 					{
-						System.out.println(line.trim().replace("versionName ","").replaceAll("\"", ""));
-						break;
+					   line=line.trim().replace("versionName ","").replaceAll("\"", "");
+					   break;
 					}
 				}
 				read.close();
