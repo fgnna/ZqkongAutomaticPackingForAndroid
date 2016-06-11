@@ -32,7 +32,8 @@ public class SubmitAutomatic extends HttpServlet {
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SubmitAutomatic() {
+    public SubmitAutomatic() 
+    {
         super();
         // TODO Auto-generated constructor stub
     }

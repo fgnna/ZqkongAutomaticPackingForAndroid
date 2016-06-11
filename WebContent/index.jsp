@@ -32,10 +32,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript">
 var basePath = "<%=basePath %>";
 var status_map = {0:"待处理",1:"正在打包",2:"完成",3:"失败"}
-function qccoded()
-{
-	$('#qrcode').qrcode({width: 128,height: 128,text: basePath});
-}
+
 function query()
 {
 	$.ajax({
@@ -90,7 +87,8 @@ function submitChannel()
 			  else
 			  {
 				  query();
-				  $("#channel_name").attr("value","");
+				  $("#channel_name").val("");
+				  alert ("成功");
 			  }
 			  
 			  $("#submit_loading").hide();
@@ -100,9 +98,47 @@ function submitChannel()
 		});
 }
 
+function updateBeta(reqCode)
+{
+	$('#qrcode').hide();
+	$('#download_beta').hide();
+	$('#update_beta').hide();
+	$('#update_beta_loading').show();
+	
+	$.ajax({
+		  url: basePath+"updatebeta",
+		  data:{"reqCode":reqCode},
+		  dataType: 'json',
+		  success: function(response)
+		  {
+		
+			  if(0 == response.ret_code)//无更新
+			  {
+				  $('#qrcode').show();
+				  $('#download_beta').show();
+				  $('#update_beta').show();
+				  $('#update_beta_loading').hide();
+			  }
+			  else//打包中
+			  {
+				  $('#qrcode').hide();
+				  $('#download_beta').hide();
+				  $('#update_beta').hide();
+				  $('#update_beta_loading').show();
+			  }
+			  $("#what_new").html(response.ret_msg);
+		  }
+		});
+}
+
+function qccoded()
+{
+	$('#qrcode').qrcode({width: 128,height: 128,text: basePath+"apk/zuqiukong_beta_debug_beta.apk"});
+}
+
 </script>
 </head>
-<body onload="query();qccoded()">
+<body onload="query();qccoded();updateBeta()">
 	<div class="container">
 
 		<div class="page-header">
@@ -110,25 +146,41 @@ function submitChannel()
 			<p class="lead">目前提供自动打渠道包、下载及记录查看，自动邮件推送暂未开发！</p>
 		</div>
 
-		<form class="navbar-form navbar-left" role="search">
-			<h4 class="form-signin-heading">输入渠道包名称 :</h4>
-			<div class="form-group">
-				<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value=""
-					placeholder="只能是数字英文的组合，并且不能为纯数字">
-			</div>
-			<button id="submitButton" onclick="submitChannel();" type="button" class="btn btn-success">提交</button>
-			<img id="submit_loading" hidden="true" alt="" width="50" height="30" src="image/loading2.gif"/>
-		</form>
-		<div class="navbar-right" >
-			<h5 style="color:#208e48;">Beta版</h5>
-			<div id="qrcode" hidden="true"></div>
-			<img id="update_beta_loading" alt="" width="128" height="128" src="image/loading.gif"/>
-			<a id="download_beta"  hidden="true" >下载</a>
-			<a id="update_beta" style="margin-left: 20px;"  hidden="true">更新</a>
-			
+	<div class="row" >
+		<div class="container" >
+		      <!-- Example row of columns -->
+		      <div class="row" >
+		        <div class="col-md-6" style="height:300px;" >
+			        <form class="navbar-form navbar-left" role="search">
+						<h4 class="form-signin-heading">输入渠道包名称 :</h4>
+						<div class="form-group">
+							<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value="sadfsadfasd"
+								placeholder="只能是数字英文的组合，并且不能为纯数字">
+						</div>
+						<button id="submitButton" onclick="submitChannel();" type="button" class="btn btn-success">提交</button>
+						<img id="submit_loading" hidden="true" alt="" width="50" height="30" src="image/loading2.gif"/>
+					</form>
+		        </div>
+		        <div class="col-md-4" style="height:300px;overflow-x:scroll;">
+		        	<h5 style="color:#208e48;">Beta版日志</h5>
+			        <div id="what_new" >
+				
+				
+				
+					</div>
+		       </div>
+		        <div class="col-md-2" style="height:300px;">
+						<h5 style="color:#208e48;">Beta版</h5>
+						<div id="qrcode" hidden="true"></div>
+						<img id="update_beta_loading" alt="" width="128" height="128" src="image/loading.gif"/>
+						<a id="download_beta"  hidden="true" href="apk/zuqiukong_beta_debug_beta.apk">下载</a>
+						<a id="update_beta" style="margin-left: 20px;"  hidden="true" onclick="updateBeta('1')">更新</a>
+						
+		        </div>
+		 </div>
 		</div>
-		
 	</div>
+	<div class="row">
 	<div class="container"  id="content">
 		<h2 class="sub-header">日志</h2>
 		<div class="table-responsive">
@@ -148,7 +200,7 @@ function submitChannel()
 			</table>
 		</div>
 	</div>
-	
+	</div>
 	
 </body>
 </html>

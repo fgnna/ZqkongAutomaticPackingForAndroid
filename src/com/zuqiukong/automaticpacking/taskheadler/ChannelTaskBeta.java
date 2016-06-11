@@ -15,22 +15,19 @@ import com.zuqiukong.automaticpacking.model.Model;
 import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 
 /**
- * 任务逻辑处理器
+ * Beta版的任务逻辑处理器
  * @author jie
  *
  */
-public class ChannelTask 
+public class ChannelTaskBeta 
 {	
 	
-	private String channelId;
-	private String channelName;
-	private String version;
+	private String channelName = "beta";
+	private String version = "beta";
 	
-	public ChannelTask(String channelId,String channelName,String version)
+	public ChannelTaskBeta()
 	{
-		this.channelId = channelId;
-		this.channelName = channelName;
-		this.version = version;
+
 	}
 	
 	public void doWrok()
@@ -46,8 +43,8 @@ public class ChannelTask
 	 */
 	private void checkoutAndUpdate()
 	{
-		String[] cmdCheckoutSource = {"git","-C",Constants.PROJECT_PATH ,"checkout","-f"};
-		String[] cmdUpdateSource = {"git","-C",Constants.PROJECT_PATH ,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH};  
+		String[] cmdCheckoutSource = {"git","-C",Constants.PROJECT_PATH_BETA ,"checkout","-f"};
+		String[] cmdUpdateSource = {"git","-C",Constants.PROJECT_PATH_BETA ,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH_BETA};  
         try 
         {
         	Process pro = Runtime.getRuntime().exec(cmdCheckoutSource);  
@@ -96,7 +93,7 @@ public class ChannelTask
 		OutputStream out;
 		try
 		{
-			in = new FileInputStream(Constants.PROJECT_GRADLE_PATH);
+			in = new FileInputStream(Constants.PROJECT_GRADLE_BETA_PATH);
 			BufferedReader read = new BufferedReader(new InputStreamReader(in));
 			
 			StringBuilder contentString = new StringBuilder();
@@ -108,8 +105,10 @@ public class ChannelTask
 			}
 			read.close();
 			in.close();
-			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_PATH))) ;
-			String newBuild = contentString.toString().replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replace("<channelName>", channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ));
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_BETA_PATH))) ;
+			String newBuild = contentString.toString()
+					.replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replace("<channelName>", channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ))
+					.replace("defaultConfig.versionName", "\"" + version+"\"");
 			System.out.println(newBuild);
 			bufferedWriter.write(newBuild);
 			bufferedWriter.flush();
@@ -129,11 +128,11 @@ public class ChannelTask
 		//./gradlew clean
 		// ./gradlew assemble<channelName>Release
 		//打包前清除
-		Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_PROCESSING);
+
 		
-		String[] cmdClean = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"clean"};
+		String[] cmdClean = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"clean"};
 		//打包
-		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+channelName+"Release"};
+		String[] cmdPacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Debug"};
         try 
         {
         	Process pro = Runtime.getRuntime().exec(cmdClean);  
@@ -154,27 +153,42 @@ public class ChannelTask
 			boolean buildSuccessful = false;
 			while((line = read.readLine())!=null)
 			{  
+				System.out.println(line);
 				if(line.indexOf("BUILD SUCCESSFUL")!= -1)
 				{
 					buildSuccessful = true;
 				}
 			}  
+			
+			if(!buildSuccessful)
+			{
+				read.close();
+				in.close();
+				in = pro.getErrorStream();  
+				read = new BufferedReader(new InputStreamReader(in));  
+				line = null;  
+				while((line = read.readLine())!=null)
+				{  
+					System.out.println(line);
+				}  
+			}
+			
 			//Fast-forward
 			read.close();
 			in.close();
 			
 			if(buildSuccessful)
 			{
-				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_SUCCESS);
+			
 				putFile();
 				System.out.println("打包完成");
 			}
 			else
 			{
-				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_FAILED);
+		
 				System.out.println("打包失败");
 			}
-			
+			pro.destroy();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -189,8 +203,8 @@ public class ChannelTask
 	 */
 	private void putFile()
 	{
-		String apkName = "/zuqiukong_"+channelName+"_release_"+version+".apk";
-		String apkPackgaPath = Constants.PROJECT_PATH + Constants.APK_PATH + apkName;
+		String apkName = "/zuqiukong_"+channelName+"_debug_"+version+".apk";
+		String apkPackgaPath = Constants.PROJECT_PATH_BETA + Constants.APK_PATH + apkName;
 
 		
 		String[] cmdCopyApk = {"cp",apkPackgaPath,Constants.WebPath};
@@ -214,7 +228,7 @@ public class ChannelTask
 	 */
 	private void updateModel()
 	{
-		
+		Constants.IsPackingBeta = false;
 	}
 	
 }

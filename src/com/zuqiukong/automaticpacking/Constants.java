@@ -7,7 +7,7 @@ package com.zuqiukong.automaticpacking;
 public class Constants 
 {
 	public static String WebPath = "";
-	
+	public static boolean IsPackingBeta = false;
 	//项目打包的远程仓库名
 	public static final String PROJECT_GIT_REMOTE= "auto";
 	//项目打包的分支
@@ -31,10 +31,12 @@ public class Constants
 
 	//用于编辑打包配置文件
 	public static final String PROJECT_GRADLE_PATH = PROJECT_PATH + "/app/build.gradle";
+	//用于编辑打包配置文件
+		public static final String PROJECT_GRADLE_BETA_PATH = PROJECT_PATH_BETA + "/app/build.gradle";
 
 	//匹配打包时所需替换的包名字符的正则表达式：productFlavors {......}
 	//final String Gradle_Profiles_Regex =  "productFlavors\\s*\\{{1}([\\w\\s/\\\\*]*\\{{1}[\\w\\s=\\[\\]\\\":]*\\}{1})*[\\s\\*/]*\\}{1}";
 	public static final String Gradle_Profiles_Regex =  "productFlavors\\s*\\{{1}([\\w\\s/\\\\\\*]*\\{{1}[/\\w\\s=\\[\\]\\\":]*\\}{1})*[\\s\\*/]*\\}{1}";
 	//打包配置的替换文本格式 : 请替换 <channelName>为正确的渠道标识
-	public static final String Gradle_Profiles_Text =  "productFlavors{ \n <channelName> { \n manifestPlaceholders = [ CHANNEL_NAME:\"<channelName>\" ] \n } \n }";
+	public static final String Gradle_Profiles_Text =  "productFlavors{ \n <channelName> { \n manifestPlaceholders = [ CHANNEL_NAME:\"<channelNameUpcase>\" ] \n } \n }";
 }
