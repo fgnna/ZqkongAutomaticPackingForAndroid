@@ -99,7 +99,7 @@ public class UpdateBetaAction extends HttpServlet
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
-				if("Already up-to-date".indexOf(line) >= 0)
+				if(line.indexOf("Already up-to-date") >= 0)
 				{
 					hasNew = false;
 					break;

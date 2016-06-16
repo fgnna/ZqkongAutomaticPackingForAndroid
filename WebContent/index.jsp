@@ -101,10 +101,10 @@ function submitChannel()
 function updateBeta(reqCode)
 {
 	$('#qrcode').hide();
+	$('#qrcodeRelease').hide();
 	$('#download_beta').hide();
 	$('#update_beta').hide();
 	$('#update_beta_loading').show();
-	
 	$.ajax({
 		  url: basePath+"updatebeta",
 		  data:{"reqCode":reqCode},
@@ -115,6 +115,7 @@ function updateBeta(reqCode)
 			  if(0 == response.ret_code)//无更新
 			  {
 				  $('#qrcode').show();
+				  $('#qrcodeRelease').show();
 				  $('#download_beta').show();
 				  $('#update_beta').show();
 				  $('#update_beta_loading').hide();
@@ -122,6 +123,7 @@ function updateBeta(reqCode)
 			  else//打包中
 			  {
 				  $('#qrcode').hide();
+				  $('#qrcodeRelease').hide();
 				  $('#download_beta').hide();
 				  $('#update_beta').hide();
 				  $('#update_beta_loading').show();
@@ -134,6 +136,8 @@ function updateBeta(reqCode)
 function qccoded()
 {
 	$('#qrcode').qrcode({width: 128,height: 128,text: basePath+"apk/zuqiukong_beta_debug_beta.apk"});
+	$('#qrcodeRelease').qrcode({width: 128,height: 128,text: basePath+"apk/zuqiukong_beta_release_beta.apk"});
+
 }
 
 </script>
@@ -150,7 +154,7 @@ function qccoded()
 		<div class="container" >
 		      <!-- Example row of columns -->
 		      <div class="row" >
-		        <div class="col-md-6" style="height:300px;" >
+		        <div class="col-md-6" style="height:380px;" >
 			        <form class="navbar-form navbar-left" role="search">
 						<h4 class="form-signin-heading">输入渠道包名称 :</h4>
 						<div class="form-group">
@@ -161,7 +165,7 @@ function qccoded()
 						<img id="submit_loading" hidden="true" alt="" width="50" height="30" src="image/loading2.gif"/>
 					</form>
 		        </div>
-		        <div class="col-md-4" style="height:300px;overflow-x:scroll;">
+		        <div class="col-md-4" style="height:380px;overflow-x:scroll;">
 		        	<h5 style="color:#208e48;">Beta版日志</h5>
 			        <div id="what_new" >
 				
@@ -169,12 +173,14 @@ function qccoded()
 				
 					</div>
 		       </div>
-		        <div class="col-md-2" style="height:300px;">
-						<h5 style="color:#208e48;">Beta版</h5>
+		        <div class="col-md-2" style="height:380px;">
+						<h5 style="color:#208e48;">Beta版测试接口</h5>
 						<div id="qrcode" hidden="true"></div>
 						<img id="update_beta_loading" alt="" width="128" height="128" src="image/loading.gif"/>
 						<a id="download_beta"  hidden="true" href="apk/zuqiukong_beta_debug_beta.apk">下载</a>
 						<a id="update_beta" style="margin-left: 20px;"  hidden="true" onclick="updateBeta('1')">更新</a>
+						<h5 style="color:#208e48;">Beta版正式接口</h5>
+						<div id="qrcodeRelease" hidden="true"></div>
 						
 		        </div>
 		 </div>

@@ -10,6 +10,7 @@ public class TestCode
 {
 		public static void main(String[] args) 
 		{
+			/*
 			InputStream in;
 			OutputStream out;
 			try
@@ -32,6 +33,9 @@ public class TestCode
 			{
 				e.printStackTrace();
 			}
+			*/
+			
+			System.out.println("Already up-to-date sadfsdafasdf".indexOf("Already up-to-date"));
 			
 		}
 }

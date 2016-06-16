@@ -132,21 +132,20 @@ public class ChannelTaskBeta
 		
 		String[] cmdClean = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"clean"};
 		//打包
-		String[] cmdPacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Debug"};
+		String[] cmdDebugPacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Debug"};
+		String[] cmdReleasePacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Release"};
         try 
         {
         	Process pro = Runtime.getRuntime().exec(cmdClean);  
 			pro.waitFor();
-			
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
-			read.close();
-			in.close();
 			pro.destroy();
-			
-			String line = null;  
-			pro = Runtime.getRuntime().exec(cmdPacking );
+	
+			pro = Runtime.getRuntime().exec(cmdDebugPacking );
 			pro.waitFor();
+			InputStream in = pro.getInputStream();  
+			BufferedReader read = new BufferedReader(new InputStreamReader(in));  			
+		
+			String line = null;  
 			in = pro.getInputStream();  
 			read = new BufferedReader(new InputStreamReader(in));  
 			line = null;  
@@ -177,6 +176,10 @@ public class ChannelTaskBeta
 			read.close();
 			in.close();
 			
+			pro = Runtime.getRuntime().exec(cmdReleasePacking);  
+			pro.waitFor();
+			pro.destroy();
+			
 			if(buildSuccessful)
 			{
 			
@@ -205,13 +208,19 @@ public class ChannelTaskBeta
 	{
 		String apkName = "/zuqiukong_"+channelName+"_debug_"+version+".apk";
 		String apkPackgaPath = Constants.PROJECT_PATH_BETA + Constants.APK_PATH + apkName;
+		
+		String apkReleaseName = "/zuqiukong_"+channelName+"_release_"+version+".apk";
+		String apkReleasePackgaPath = Constants.PROJECT_PATH_BETA + Constants.APK_PATH + apkReleaseName;
 
 		
 		String[] cmdCopyApk = {"cp",apkPackgaPath,Constants.WebPath};
-
+		String[] cmdCopyReleaseApk = {"cp",apkReleasePackgaPath,Constants.WebPath};
         try 
         {
         	Process pro = Runtime.getRuntime().exec(cmdCopyApk);  
+			pro.waitFor();
+			pro.destroy();
+			pro = Runtime.getRuntime().exec(cmdCopyReleaseApk);  
 			pro.waitFor();
 			pro.destroy();
 		} catch (InterruptedException e) {
