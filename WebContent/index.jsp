@@ -63,7 +63,8 @@ function query()
 				  		//zuqiukong_a360_release_3.0.0.apk
 				  		htmlStr += "</tr>";
 			  		}
-				  $("#content_tbody").append(htmlStr)
+				  $("#content_tbody").append(htmlStr);
+				  setTimeout("query();updateBeta()",60000);  
 			  }
 		  }
 		});
@@ -112,6 +113,7 @@ function updateBeta(reqCode)
 		  success: function(response)
 		  {
 		
+			  $("#what_new").html(response.ret_msg);
 			  if(0 == response.ret_code)//无更新
 			  {
 				  $('#qrcode').show();
@@ -120,15 +122,25 @@ function updateBeta(reqCode)
 				  $('#update_beta').show();
 				  $('#update_beta_loading').hide();
 			  }
-			  else//打包中
+			  else if(1 == response.ret_code)//打包中
 			  {
 				  $('#qrcode').hide();
 				  $('#qrcodeRelease').hide();
 				  $('#download_beta').hide();
 				  $('#update_beta').hide();
-				  $('#update_beta_loading').show();
+				  $('#update_beta_loading').show(); 
 			  }
-			  $("#what_new").html(response.ret_msg);
+			  else
+			  {
+				  alert("打包失败");
+				  $('#qrcode').show();
+				  $('#qrcodeRelease').show();
+				  $('#download_beta').show();
+				  $('#update_beta').show();
+				  $('#update_beta_loading').hide();
+				  $("#what_new").html(response.ret_error_msg);
+				  
+			  }
 		  }
 		});
 }
@@ -154,18 +166,19 @@ function qccoded()
 		<div class="container" >
 		      <!-- Example row of columns -->
 		      <div class="row" >
-		        <div class="col-md-6" style="height:380px;" >
+		        <div class="col-md-5" style="height:380px;" >
 			        <form class="navbar-form navbar-left" role="search">
 						<h4 class="form-signin-heading">输入渠道包名称 :</h4>
 						<div class="form-group">
-							<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value="sadfsadfasd"
+							<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value="
+							"
 								placeholder="只能是数字英文的组合，并且不能为纯数字">
 						</div>
 						<button id="submitButton" onclick="submitChannel();" type="button" class="btn btn-success">提交</button>
 						<img id="submit_loading" hidden="true" alt="" width="50" height="30" src="image/loading2.gif"/>
 					</form>
 		        </div>
-		        <div class="col-md-4" style="height:380px;overflow-x:scroll;">
+		        <div class="col-md-5" style="height:380px;overflow-y:scroll;">
 		        	<h5 style="color:#208e48;">Beta版日志</h5>
 			        <div id="what_new" >
 				
@@ -174,13 +187,15 @@ function qccoded()
 					</div>
 		       </div>
 		        <div class="col-md-2" style="height:380px;">
-						<h5 style="color:#208e48;">Beta版测试接口</h5>
-						<div id="qrcode" hidden="true"></div>
-						<img id="update_beta_loading" alt="" width="128" height="128" src="image/loading.gif"/>
+						<h5 style="color:#208e48;">Beta版-测试接口</h5>
+						<div id="qrcode" hidden="true"  onclick="window.location.href='apk/zuqiukong_beta_debug_beta.apk'"></div>
+						<img id="update_beta_loading" alt=""  width="128" height="128" src="image/loading.gif"/>
+						<!-- 
 						<a id="download_beta"  hidden="true" href="apk/zuqiukong_beta_debug_beta.apk">下载</a>
 						<a id="update_beta" style="margin-left: 20px;"  hidden="true" onclick="updateBeta('1')">更新</a>
-						<h5 style="color:#208e48;">Beta版正式接口</h5>
-						<div id="qrcodeRelease" hidden="true"></div>
+						 -->
+						<h5 style="color:#208e48;">Beta版-正式接口</h5>
+						<div id="qrcodeRelease" hidden="true" onclick="window.location.href='apk/zuqiukong_beta_release_beta.apk'" ></div>
 						
 		        </div>
 		 </div>

@@ -184,12 +184,15 @@ public class ChannelTaskBeta
 			{
 			
 				putFile();
-				System.out.println("打包完成");
+				Constants.IsPackingBeta = 0;
+				Constants.log("打包完成");
 			}
 			else
 			{
-		
-				System.out.println("打包失败");
+				Constants.IsPackingBeta = -1;
+				Constants.log("打包失败");
+				Constants.packingBetaErrorMsg = "打包失败";
+				
 			}
 			pro.destroy();
 		} catch (InterruptedException e) {
@@ -237,7 +240,7 @@ public class ChannelTaskBeta
 	 */
 	private void updateModel()
 	{
-		Constants.IsPackingBeta = false;
+		
 	}
 	
 }

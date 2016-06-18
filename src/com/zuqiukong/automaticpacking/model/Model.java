@@ -172,7 +172,7 @@ public class Model
 			List<ChannelPojo> channelList = new LinkedList<>();
 			
 			Statement statement = conn.createStatement();
-			resultSet  = statement .executeQuery("select * from zqk_channel order by update_date ;"); //查询数据 
+			resultSet  = statement .executeQuery("select * from zqk_channel order by update_date desc ;"); //查询数据 
 			while(resultSet.next())
 			{
 				ChannelPojo channelt = new ChannelPojo();

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,12 +17,17 @@ import com.zuqiukong.automaticpacking.Constants;
 import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 import com.zuqiukong.automaticpacking.pojo.ResponseBasePojo;
 import com.zuqiukong.automaticpacking.taskheadler.ChannelTaskBeta;
+
+import sun.rmi.runtime.Log;
 @WebServlet("/updatebeta")
 public class UpdateBetaAction extends HttpServlet
 {
 	private Gson gson = new Gson();
+	/*
+	 *  ret_code 1 正在打包 0 无任何更新 -1 异常
+	 */
+	ResponseBasePojo<ChannelPojo> responsePojo ;
 	/**
-	 * 
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -29,43 +35,11 @@ public class UpdateBetaAction extends HttpServlet
 		response.setHeader("content-type","text/html;charset=UTF-8");
 		String channel_name = request.getParameter("reqCode");
 		
-		/*
-		 *  ret_code 1 正在打包 0 无任何更新
-		 */
-		ResponseBasePojo<ChannelPojo> responsePojo = new ResponseBasePojo<ChannelPojo>();
-		if(null == channel_name || "".equals(channel_name))
-		{
-			responsePojo.ret_code = Constants.IsPackingBeta?1:0;
-			
-		}
-		else
-		{
-			if(Constants.IsPackingBeta )
-			{
-				responsePojo.ret_code = 1;
-			}
-			else
-			{
-				if(checkNewcode())
-				{
-					responsePojo.ret_code = 1;
-					Constants.IsPackingBeta = true;
-					new Thread(new Runnable() 
-					{
-						@Override
-						public void run() 
-						{
-							new ChannelTaskBeta().doWrok();
-						}
-					}).start();
-				}
-				else
-				{
-					responsePojo.ret_code = 0;
-				}
-			}
-		}
+		
+		responsePojo = new ResponseBasePojo<ChannelPojo>();
+		responsePojo.ret_code = Constants.IsPackingBeta;
 		responsePojo.ret_msg = getWhatNew();
+		responsePojo.ret_error_msg = Constants.packingBetaErrorMsg;
 		response.getWriter().append(gson.toJson(responsePojo));
 	}
 
@@ -77,55 +51,13 @@ public class UpdateBetaAction extends HttpServlet
 		doGet(request, response);
 	}
 	
-	
-	
-	
-	private boolean checkNewcode()
-	{
-		String[] cmdCheckoutSource = {"git","-C",Constants.PROJECT_PATH_BETA,"checkout","-f"};
-		String[] cmdUpdateSource = {"git","-C",Constants.PROJECT_PATH_BETA ,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH_BETA};  
-		boolean hasNew = true;
-        try 
-        {
-        	Process pro = Runtime.getRuntime().exec(cmdCheckoutSource);  
-			pro.waitFor();
-			pro.destroy();
-			
-			
-			pro = Runtime.getRuntime().exec(cmdUpdateSource);
-			pro.waitFor();
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
-			String line = null;  
-			while((line = read.readLine())!=null)
-			{  
-				if(line.indexOf("Already up-to-date") >= 0)
-				{
-					hasNew = false;
-					break;
-				}
-			}  
-			//Fast-forward
-			read.close();
-			in.close();
-			pro.destroy();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-		
-		return hasNew;
-	}
 	private String getWhatNew()
 	{
 		/*
 		 * 查看最近10次提交中，带‘betaMag:’字样的提交说明信息
 		 * git log -10 --pretty=format:"%s" | grep 'betaMsg:'
 		 */
-		String[] cmdLog = {"git","-C",Constants.PROJECT_PATH_BETA,"log","-10","--pretty=format:'%s'","--grep","betaMsg:"};
+		String[] cmdLog = {"git","-C",Constants.PROJECT_PATH_BETA,"log","-20","--date=format:%m-%d %H:%M","--pretty=format:%cd | %cn : %s","--grep","betaMsg:"};
 		StringBuilder whatNews = new StringBuilder();
 		Process pro=null;
         try 
@@ -137,7 +69,6 @@ public class UpdateBetaAction extends HttpServlet
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
-				System.out.println(line);  
 				whatNews.append(line+"<br>");
 			}  
 			pro.destroy();
@@ -158,8 +89,7 @@ public class UpdateBetaAction extends HttpServlet
         	if(null != pro)
         		pro.destroy();
 		}
-        System.out.println("5");
-		return whatNews.toString();
+		return whatNews.toString().replace("betaMsg:", "");
 		
 	}
 }

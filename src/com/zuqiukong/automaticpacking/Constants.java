@@ -1,4 +1,7 @@
 package com.zuqiukong.automaticpacking;
+
+import javax.servlet.ServletContext;
+
 /**
  * 项目常量配置
  * @author jie
@@ -6,8 +9,24 @@ package com.zuqiukong.automaticpacking;
  */
 public class Constants 
 {
+	public static ServletContext mServletContext;  
+	
+	public static void log(String log)
+	{
+		if(null != mServletContext)
+		{
+			mServletContext.log(log);
+		}
+	}
+	
 	public static String WebPath = "";
-	public static boolean IsPackingBeta = false;
+	/**
+	 * 0 无更新 
+	 * 1 正在打beta包
+	 * -1 打包失败 
+	 */
+	public static int IsPackingBeta = 0;
+	public static String packingBetaErrorMsg = null;
 	//项目打包的远程仓库名
 	public static final String PROJECT_GIT_REMOTE= "auto";
 	//项目打包的分支

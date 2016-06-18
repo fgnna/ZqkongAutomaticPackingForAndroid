@@ -9,4 +9,5 @@ public class  ResponseBasePojo<T>
 	public int ret_code;
 	public T data;
 	public String ret_msg;
+	public String ret_error_msg;
 }
