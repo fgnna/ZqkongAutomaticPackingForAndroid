@@ -54,7 +54,7 @@ public class ChannelTask
 			pro.waitFor();
 			
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
@@ -67,7 +67,7 @@ public class ChannelTask
 			pro = Runtime.getRuntime().exec(cmdUpdateSource);
 			pro.waitFor();
 			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in));  
+			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			line = null;  
 			while((line = read.readLine())!=null)
 			{  
@@ -97,7 +97,7 @@ public class ChannelTask
 		try
 		{
 			in = new FileInputStream(Constants.PROJECT_GRADLE_PATH);
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));
 			
 			StringBuilder contentString = new StringBuilder();
 			String line = "";
@@ -109,7 +109,9 @@ public class ChannelTask
 			read.close();
 			in.close();
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_PATH))) ;
-			String newBuild = contentString.toString().replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replace("<channelName>", channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ));
+			String newBuild = contentString.toString().replaceAll(
+					Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replace(
+							"<channelName>", "main".equals(channelName)?"_main":channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ));
 			System.out.println(newBuild);
 			bufferedWriter.write(newBuild);
 			bufferedWriter.flush();
@@ -133,14 +135,14 @@ public class ChannelTask
 		
 		String[] cmdClean = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"clean"};
 		//打包
-		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+channelName+"Release"};
+		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+("main".equals(channelName)?"_main":channelName)+"Release"};
         try 
         {
         	Process pro = Runtime.getRuntime().exec(cmdClean);  
 			pro.waitFor();
 			
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			read.close();
 			in.close();
 			pro.destroy();
@@ -149,7 +151,7 @@ public class ChannelTask
 			pro = Runtime.getRuntime().exec(cmdPacking );
 			pro.waitFor();
 			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in));  
+			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			line = null;  
 			boolean buildSuccessful = false;
 			while((line = read.readLine())!=null)
@@ -189,11 +191,11 @@ public class ChannelTask
 	 */
 	private void putFile()
 	{
-		String apkName = "/zuqiukong_"+channelName+"_release_"+version+".apk";
+		String apkName = "/zuqiukong_"+("main".equals(channelName)?"_main":channelName)+"_release_"+version+".apk";
 		String apkPackgaPath = Constants.PROJECT_PATH + Constants.APK_PATH + apkName;
 
-		
 		String[] cmdCopyApk = {"cp",apkPackgaPath,Constants.WebPath};
+		Constants.log(System.getProperty("os.name").toUpperCase());
 
         try 
         {

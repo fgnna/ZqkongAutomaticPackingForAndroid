@@ -51,7 +51,7 @@ public class ChannelTaskBeta
 			pro.waitFor();
 			
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
@@ -64,7 +64,7 @@ public class ChannelTaskBeta
 			pro = Runtime.getRuntime().exec(cmdUpdateSource);
 			pro.waitFor();
 			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in));  
+			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 			line = null;  
 			while((line = read.readLine())!=null)
 			{  
@@ -94,7 +94,7 @@ public class ChannelTaskBeta
 		try
 		{
 			in = new FileInputStream(Constants.PROJECT_GRADLE_BETA_PATH);
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));
 			
 			StringBuilder contentString = new StringBuilder();
 			String line = "";
@@ -131,24 +131,26 @@ public class ChannelTaskBeta
 
 		
 		String[] cmdClean = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"clean"};
+	
 		//打包
 		String[] cmdDebugPacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Debug"};
 		String[] cmdReleasePacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Release"};
         try 
         {
+        	System.out.println("执行清除");
         	Process pro = Runtime.getRuntime().exec(cmdClean);  
+        	System.out.println("执行清除pro.waitFor()");
 			pro.waitFor();
+			System.out.println("执行清除pro.destroy");
 			pro.destroy();
-	
-			pro = Runtime.getRuntime().exec(cmdDebugPacking );
-			pro.waitFor();
+			System.out.println("清除完毕，开始打包");
+        	pro = Runtime.getRuntime().exec(cmdDebugPacking );
+        	pro.waitFor();
+        	
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));  			
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  			
 		
-			String line = null;  
-			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in));  
-			line = null;  
+			String line = null;
 			boolean buildSuccessful = false;
 			while((line = read.readLine())!=null)
 			{  
@@ -164,7 +166,7 @@ public class ChannelTaskBeta
 				read.close();
 				in.close();
 				in = pro.getErrorStream();  
-				read = new BufferedReader(new InputStreamReader(in));  
+				read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
 				line = null;  
 				while((line = read.readLine())!=null)
 				{  
@@ -175,7 +177,7 @@ public class ChannelTaskBeta
 			//Fast-forward
 			read.close();
 			in.close();
-			
+			pro.destroy();
 			pro = Runtime.getRuntime().exec(cmdReleasePacking);  
 			pro.waitFor();
 			pro.destroy();

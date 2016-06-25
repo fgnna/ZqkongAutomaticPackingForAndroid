@@ -35,7 +35,7 @@ public class Constants
 	public static final String PROJECT_GIT_BRANCH_BETA= "beta";
 	
 	//项目源码所在目录
-	public static final String PROJECT_PATH_BASE = "/Users/mac/Desktop/develop/work";
+	public static final String PROJECT_PATH_BASE = "/home/jie/autopacking";
 	//用于检查最新版本的项目源码所在目录
 	public static final String PROJECT_CHECK_VERSION_PATH = PROJECT_PATH_BASE + "/zuquikong_version";
 	//用于检查最新版本号的源码文件路径

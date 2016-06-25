@@ -63,7 +63,7 @@ function query()
 				  		//zuqiukong_a360_release_3.0.0.apk
 				  		htmlStr += "</tr>";
 			  		}
-				  $("#content_tbody").append(htmlStr);
+				  $("#content_tbody").html(htmlStr);
 				  setTimeout("query();updateBeta()",60000);  
 			  }
 		  }
@@ -170,8 +170,7 @@ function qccoded()
 			        <form class="navbar-form navbar-left" role="search">
 						<h4 class="form-signin-heading">输入渠道包名称 :</h4>
 						<div class="form-group">
-							<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value="
-							"
+							<input id="channel_name"  type="text" style="width: 300px;" class="form-control"  value=""
 								placeholder="只能是数字英文的组合，并且不能为纯数字">
 						</div>
 						<button id="submitButton" onclick="submitChannel();" type="button" class="btn btn-success">提交</button>

@@ -35,7 +35,7 @@ public class TestCode
 			}
 			*/
 			
-			System.out.println("Already up-to-date sadfsdafasdf".indexOf("Already up-to-date"));
+			System.out.println(System.getProperty("os.name"));
 			
 		}
 }

@@ -40,6 +40,7 @@ public class QueryLog extends HttpServlet {
 		
 		List<ChannelPojo>  list = Model.getInstance().queryAll();
 		response.setHeader("content-type","text/html;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
 		ResponseBasePojo<List<ChannelPojo>> responsePojo = new ResponseBasePojo<>(); 
 		if(null !=list && 0 != list.size())
 		{

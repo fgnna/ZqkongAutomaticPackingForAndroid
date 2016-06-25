@@ -33,6 +33,7 @@ public class UpdateBetaAction extends HttpServlet
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		response.setHeader("content-type","text/html;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
 		String channel_name = request.getParameter("reqCode");
 		
 		
@@ -65,7 +66,7 @@ public class UpdateBetaAction extends HttpServlet
         	pro = Runtime.getRuntime().exec(cmdLog);  
 			pro.waitFor();
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in));
+			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
