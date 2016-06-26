@@ -145,6 +145,7 @@ public class ChannelTaskBeta
 			pro.destroy();
 			System.out.println("清除完毕，开始打包");
         	pro = Runtime.getRuntime().exec(cmdDebugPacking );
+        	
         	pro.waitFor();
         	
 			InputStream in = pro.getInputStream();  
