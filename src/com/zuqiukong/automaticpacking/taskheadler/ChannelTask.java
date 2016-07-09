@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import com.zuqiukong.automaticpacking.Constants;
+import com.zuqiukong.automaticpacking.ProcessUtils;
+import com.zuqiukong.automaticpacking.ProcessUtils.LineMsgHandle;
 import com.zuqiukong.automaticpacking.model.Model;
 import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 
@@ -25,6 +27,7 @@ public class ChannelTask
 	private String channelId;
 	private String channelName;
 	private String version;
+	protected boolean buildSuccessful;
 	
 	public ChannelTask(String channelId,String channelName,String version)
 	{
@@ -48,41 +51,15 @@ public class ChannelTask
 	{
 		String[] cmdCheckoutSource = {"git","-C",Constants.PROJECT_PATH ,"checkout","-f"};
 		String[] cmdUpdateSource = {"git","-C",Constants.PROJECT_PATH ,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH};  
-        try 
-        {
-        	Process pro = Runtime.getRuntime().exec(cmdCheckoutSource);  
-			pro.waitFor();
-			
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			String line = null;  
-			while((line = read.readLine())!=null)
-			{  
-				System.out.println(line);  
+		   try 
+	        {
+	        	ProcessUtils.exec(cmdCheckoutSource,"还原master源码",null);
+	        	ProcessUtils.exec(cmdUpdateSource,"更新master到最新版本",null);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}  
-			read.close();
-			in.close();
-			pro.destroy();
-			
-			pro = Runtime.getRuntime().exec(cmdUpdateSource);
-			pro.waitFor();
-			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			line = null;  
-			while((line = read.readLine())!=null)
-			{  
-				System.out.println(line);  
-			}  
-			//Fast-forward
-			read.close();
-			in.close();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
+	        
         
 
 	}
@@ -138,49 +115,33 @@ public class ChannelTask
 		String[] cmdPacking = {Constants.PROJECT_PATH +"/gradlew","-p",Constants.PROJECT_PATH ,"assemble"+("main".equals(channelName)?"_main":channelName)+"Release"};
         try 
         {
-        	Process pro = Runtime.getRuntime().exec(cmdClean);  
-			pro.waitFor();
-			
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			read.close();
-			in.close();
-			pro.destroy();
-			
-			String line = null;  
-			pro = Runtime.getRuntime().exec(cmdPacking );
-			pro.waitFor();
-			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			line = null;  
-			boolean buildSuccessful = false;
-			while((line = read.readLine())!=null)
-			{  
-				if(line.indexOf("BUILD SUCCESSFUL")!= -1)
+        	buildSuccessful = false;
+        	ProcessUtils.exec(cmdClean,"打包前清除clean()",null);
+        	ProcessUtils.exec(cmdPacking,"master打发布包",new LineMsgHandle()
+        	{
+				@Override
+				public void handleLine(String line) 
 				{
-					buildSuccessful = true;
+					if(line.indexOf("BUILD SUCCESSFUL")!= -1)
+					{
+						buildSuccessful  = true;
+					}
 				}
-			}  
-			//Fast-forward
-			read.close();
-			in.close();
-			
+			});
+        	
 			if(buildSuccessful)
 			{
 				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_SUCCESS);
 				putFile();
-				System.out.println("打包完成");
+				Constants.log("打包完成");
 			}
 			else
 			{
 				Model.getInstance().updateStatus(channelId, ChannelPojo.STATUS_FAILED);
-				System.out.println("打包失败");
+				Constants.log("打包失败");
 			}
 			
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+		}  catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
@@ -195,17 +156,10 @@ public class ChannelTask
 		String apkPackgaPath = Constants.PROJECT_PATH + Constants.APK_PATH + apkName;
 
 		String[] cmdCopyApk = {"cp",apkPackgaPath,Constants.WebPath};
-		Constants.log(System.getProperty("os.name").toUpperCase());
-
         try 
         {
-        	Process pro = Runtime.getRuntime().exec(cmdCopyApk);  
-			pro.waitFor();
-			pro.destroy();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+        	ProcessUtils.exec(cmdCopyApk,"拷贝apk到web目录",null);
+		}  catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  

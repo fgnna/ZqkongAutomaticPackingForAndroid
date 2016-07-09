@@ -53,7 +53,7 @@ function query()
 				  		htmlStr += "<td>"+status_map[channel.status]+"</td>";
 				  		if(2 == channel.status )
 				  		{
-				  			var apkName = "zuqiukong_"+channel.channel_name+"_release_"+channel.version+".apk";
+				  			var apkName = "zuqiukong_"+(channel.channel_name=="main"?"_main":channel.channel_name)+"_release_"+channel.version+".apk";
 				  			htmlStr += "<td><a href='apk/"+apkName+"'>"+apkName+"</a></td>";
 				  		}
 				  		else
@@ -64,10 +64,17 @@ function query()
 				  		htmlStr += "</tr>";
 			  		}
 				  $("#content_tbody").html(htmlStr);
-				  setTimeout("query();updateBeta()",60000);  
+				   
 			  }
 		  }
 		});
+}
+
+function autoQuery()
+{
+	query();
+	updateBeta();
+	setTimeout("autoQuery()",60000); 	
 }
 
 function submitChannel()
@@ -154,7 +161,7 @@ function qccoded()
 
 </script>
 </head>
-<body onload="query();qccoded();updateBeta()">
+<body onload="qccoded();autoQuery();">
 	<div class="container">
 
 		<div class="page-header">

@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import com.zuqiukong.automaticpacking.Constants;
+import com.zuqiukong.automaticpacking.ProcessUtils;
+import com.zuqiukong.automaticpacking.ProcessUtils.LineMsgHandle;
 import com.zuqiukong.automaticpacking.model.Model;
 import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 
@@ -24,6 +26,7 @@ public class ChannelTaskBeta
 	
 	private String channelName = "beta";
 	private String version = "beta";
+	protected boolean buildSuccessful = false;
 	
 	public ChannelTaskBeta()
 	{
@@ -47,36 +50,9 @@ public class ChannelTaskBeta
 		String[] cmdUpdateSource = {"git","-C",Constants.PROJECT_PATH_BETA ,"pull",Constants.PROJECT_GIT_REMOTE,Constants.PROJECT_GIT_BRANCH_BETA};  
         try 
         {
-        	Process pro = Runtime.getRuntime().exec(cmdCheckoutSource);  
-			pro.waitFor();
-			
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			String line = null;  
-			while((line = read.readLine())!=null)
-			{  
-				System.out.println(line);  
-			}  
-			read.close();
-			in.close();
-			pro.destroy();
-			
-			pro = Runtime.getRuntime().exec(cmdUpdateSource);
-			pro.waitFor();
-			in = pro.getInputStream();  
-			read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-			line = null;  
-			while((line = read.readLine())!=null)
-			{  
-				System.out.println(line);  
-			}  
-			//Fast-forward
-			read.close();
-			in.close();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+        	ProcessUtils.exec(cmdCheckoutSource,"还原beta源码",null);
+        	ProcessUtils.exec(cmdUpdateSource,"更新beta到最新版本",null);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
@@ -89,8 +65,8 @@ public class ChannelTaskBeta
 	 */
 	private void setChannelName()
 	{
-		InputStream in;
-		OutputStream out;
+		InputStream in = null;
+		OutputStream out = null ;
 		try
 		{
 			in = new FileInputStream(Constants.PROJECT_GRADLE_BETA_PATH);
@@ -104,18 +80,34 @@ public class ChannelTaskBeta
 				contentString.append(line).append("\n");
 			}
 			read.close();
+			read = null;
 			in.close();
+			in = null;
+			
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(Constants.PROJECT_GRADLE_BETA_PATH))) ;
 			String newBuild = contentString.toString()
-					.replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text.replace("<channelName>", channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ))
+					.replaceAll(Constants.Gradle_Profiles_Regex,Constants.Gradle_Profiles_Text_Beta.replace("<channelName>", channelName).replace("<channelNameUpcase>",channelName.toUpperCase() ))
 					.replace("defaultConfig.versionName", "\"" + version+"\"");
-			System.out.println(newBuild);
+			Constants.log("配置beta打包设置："+newBuild);
 			bufferedWriter.write(newBuild);
 			bufferedWriter.flush();
 			bufferedWriter.close();
 		}catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+		finally {
+			try
+			{
+				if(null != in)
+					in.close();
+				if(null != out)
+					out.close();
+			}catch(Exception e)
+			{
+				
+			}
+	
 		}
 	}
 	
@@ -137,55 +129,22 @@ public class ChannelTaskBeta
 		String[] cmdReleasePacking = {Constants.PROJECT_PATH_BETA +"/gradlew","-p",Constants.PROJECT_PATH_BETA ,"assemble"+channelName+"Release"};
         try 
         {
-        	System.out.println("执行清除");
-        	Process pro = Runtime.getRuntime().exec(cmdClean);  
-        	System.out.println("执行清除pro.waitFor()");
-			pro.waitFor();
-			System.out.println("执行清除pro.destroy");
-			pro.destroy();
-			System.out.println("清除完毕，开始打包");
-        	pro = Runtime.getRuntime().exec(cmdDebugPacking );
-        	
-        	pro.waitFor();
-        	
-			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  			
-		
-			String line = null;
-			boolean buildSuccessful = false;
-			while((line = read.readLine())!=null)
-			{  
-				System.out.println(line);
-				if(line.indexOf("BUILD SUCCESSFUL")!= -1)
+        	ProcessUtils.exec(cmdClean,"打包前清除clean()",null);
+        	ProcessUtils.exec(cmdDebugPacking,"beta打包Debug版",null);
+        	ProcessUtils.exec(cmdReleasePacking,"beta打包Release版",new LineMsgHandle() 
+        	{
+				@Override
+				public void handleLine(String line) 
 				{
-					buildSuccessful = true;
+					if(line.indexOf("BUILD SUCCESSFUL")!= -1)
+					{
+						buildSuccessful  = true;
+					}
 				}
-			}  
-			
-			if(!buildSuccessful)
-			{
-				read.close();
-				in.close();
-				in = pro.getErrorStream();  
-				read = new BufferedReader(new InputStreamReader(in,"UTF-8"));  
-				line = null;  
-				while((line = read.readLine())!=null)
-				{  
-					System.out.println(line);
-				}  
-			}
-			
-			//Fast-forward
-			read.close();
-			in.close();
-			pro.destroy();
-			pro = Runtime.getRuntime().exec(cmdReleasePacking);  
-			pro.waitFor();
-			pro.destroy();
-			
+			});
+        	
 			if(buildSuccessful)
 			{
-			
 				putFile();
 				Constants.IsPackingBeta = 0;
 				Constants.log("打包完成");
@@ -197,13 +156,12 @@ public class ChannelTaskBeta
 				Constants.packingBetaErrorMsg = "打包失败";
 				
 			}
-			pro.destroy();
-		} catch (InterruptedException e) {
+		}  catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Constants.IsPackingBeta = -1;
+			Constants.log("打包失败");
+			Constants.packingBetaErrorMsg = "打包失败";
 		}  
 	}
 	
@@ -223,16 +181,13 @@ public class ChannelTaskBeta
 		String[] cmdCopyReleaseApk = {"cp",apkReleasePackgaPath,Constants.WebPath};
         try 
         {
-        	Process pro = Runtime.getRuntime().exec(cmdCopyApk);  
-			pro.waitFor();
-			pro.destroy();
-			pro = Runtime.getRuntime().exec(cmdCopyReleaseApk);  
-			pro.waitFor();
-			pro.destroy();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+        	
+        	ProcessUtils.exec(cmdCopyApk,"拷贝beta Debug apk到web目录",null);
+        	ProcessUtils.exec(cmdCopyReleaseApk,"拷贝beta ReleaseApk apk到web目录",null);
+		
+		} 
+        catch (Exception e) 
+        {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  

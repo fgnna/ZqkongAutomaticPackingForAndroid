@@ -66,7 +66,7 @@ public class UpdateBetaAction extends HttpServlet
         	pro = Runtime.getRuntime().exec(cmdLog);  
 			pro.waitFor();
 			InputStream in = pro.getInputStream();  
-			BufferedReader read = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+			BufferedReader read = new BufferedReader(new InputStreamReader(in));
 			String line = null;  
 			while((line = read.readLine())!=null)
 			{  
