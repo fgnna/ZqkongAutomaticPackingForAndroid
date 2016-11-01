@@ -1,4 +1,4 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.pojo;
 
 import java.sql.Timestamp;
 /**

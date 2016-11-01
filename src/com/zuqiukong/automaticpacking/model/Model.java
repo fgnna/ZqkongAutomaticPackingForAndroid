@@ -1,4 +1,4 @@
-package com.zuqiukong.automaticpacking;
+package com.zuqiukong.automaticpacking.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
+import com.zuqiukong.automaticpacking.pojo.ChannelPojo;
 /**
  * 处理数据库操作
  * @author jie
@@ -84,7 +86,7 @@ public class Model
 	 * @param version
 	 * @return
 	 */
-	public boolean insert(String channel_name,String version)
+	public ChannelPojo  insert(String channel_name,String version)
 	{
 		try 
 		{
@@ -99,12 +101,13 @@ public class Model
 			{
 				Statement statement = conn.createStatement();
 				//statement.executeUpdate("     drop table zqk_channel    ");
-				statement.executeUpdate(" insert into zqk_channel values("+getStringValue(channel.id)+","+getStringValue(channel.channel_name)+","+time+","+time+","+channel.status+");      ");
-				return true;
+				statement.executeUpdate(" insert into zqk_channel values("+getStringValue(channel.id)+","+getStringValue(channel.channel_name)+","+getStringValue(channel.version)+","+time+","+time+","+channel.status+");      ");
+				return channel;
 			}
 			else
 			{
-				return false;
+				System.out.println("数据已经存在:"+channel_name);
+				return null;
 			}
 			
 		}
@@ -115,7 +118,7 @@ public class Model
 		}
 		
 		
-		return false;
+		return null;
 	}
 
 	/**
@@ -169,7 +172,7 @@ public class Model
 			List<ChannelPojo> channelList = new LinkedList<>();
 			
 			Statement statement = conn.createStatement();
-			resultSet  = statement .executeQuery("select * from zqk_channel order by update_date ;"); //查询数据 
+			resultSet  = statement .executeQuery("select * from zqk_channel order by update_date desc ;"); //查询数据 
 			while(resultSet.next())
 			{
 				ChannelPojo channelt = new ChannelPojo();
@@ -210,8 +213,39 @@ public class Model
 		}
 	}
 	
+	/**
+	 * 新增一个任务
+	 * @param channel_name
+	 * @param version
+	 * @return
+	 */
+	public void updateStatus(String channel_id,int status)
+	{
+		try 
+		{
+				Statement statement = conn.createStatement();
+				statement.executeUpdate(" update zqk_channel set status="+status +" where id='"+channel_id+"'");
+		}
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			System.out.println("error:"+e.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * 根据id获取
+	 * @param channelId
+	 */
+	public void getChannelById(String channelId) 
+	{
+		
+	}
+	
 	private String getStringValue(String value)
 	{
 		return "'"+value+"'";
 	}
+	
 }
